@@ -174,7 +174,7 @@ jobs:
         with:
           configuration: '.github/changelog-configuration.json'
           failOnError: false
-          commitMode: true
+          mode: "HYBRID"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -183,9 +183,83 @@ jobs:
         if: steps.changelog.outputs.changelog == '' || contains(steps.changelog.outputs.changelog, 'No pull requests found')
         run: |
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "## 📋 Changes" >> $GITHUB_OUTPUT
-          git log --pretty=format:"* %s (%h)" ${{ github.event.before }}..${{ github.sha }} >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
+          
+          # Get commits between tags
+          commits=$(git log --pretty=format:"%s (%h)" ${{ github.event.before }}..${{ github.sha }})
+          
+          # Categorize commits based on conventional commit prefixes
+          features=$(echo "$commits" | grep -E "^feat(\(.+\))?: " || true)
+          fixes=$(echo "$commits" | grep -E "^fix(\(.+\))?: " || true)
+          docs=$(echo "$commits" | grep -E "^docs(\(.+\))?: " || true)
+          style=$(echo "$commits" | grep -E "^style(\(.+\))?: " || true)
+          refactor=$(echo "$commits" | grep -E "^refactor(\(.+\))?: " || true)
+          perf=$(echo "$commits" | grep -E "^perf(\(.+\))?: " || true)
+          test=$(echo "$commits" | grep -E "^test(\(.+\))?: " || true)
+          build=$(echo "$commits" | grep -E "^(build|ci)(\(.+\))?: " || true)
+          chore=$(echo "$commits" | grep -E "^(chore|deps)(\(.+\))?: " || true)
+          other=$(echo "$commits" | grep -vE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|deps)(\(.+\))?: " || true)
+          
+          # Generate categorized changelog
+          if [ -n "$features" ]; then
+            echo "## 🚀 Features" >> $GITHUB_OUTPUT
+            echo "$features" | sed 's/^feat[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$fixes" ]; then
+            echo "## 🐛 Bug Fixes" >> $GITHUB_OUTPUT
+            echo "$fixes" | sed 's/^fix[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$docs" ]; then
+            echo "## 📚 Documentation" >> $GITHUB_OUTPUT
+            echo "$docs" | sed 's/^docs[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$style" ]; then
+            echo "## 🎨 Code Style" >> $GITHUB_OUTPUT
+            echo "$style" | sed 's/^style[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$refactor" ]; then
+            echo "## ♻️ Refactoring" >> $GITHUB_OUTPUT
+            echo "$refactor" | sed 's/^refactor[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$perf" ]; then
+            echo "## ⚡ Performance" >> $GITHUB_OUTPUT
+            echo "$perf" | sed 's/^perf[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$test" ]; then
+            echo "## ✅ Tests" >> $GITHUB_OUTPUT
+            echo "$test" | sed 's/^test[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$build" ]; then
+            echo "## 🔧 Build & CI" >> $GITHUB_OUTPUT
+            echo "$build" | sed 's/^(build|ci)[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$chore" ]; then
+            echo "## ⤵️ Dependencies" >> $GITHUB_OUTPUT
+            echo "$chore" | sed 's/^(chore|deps)[^:]*: /- /' | sed 's/ (/ (/' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -n "$other" ]; then
+            echo "## 💭 Other Changes" >> $GITHUB_OUTPUT
+            echo "$other" | sed 's/^/- /' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+          fi
+          
           echo "EOF" >> $GITHUB_OUTPUT
         
       - name: Create Release
