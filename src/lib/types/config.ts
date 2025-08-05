@@ -14,5 +14,6 @@ export type Config = {
   groupOrder?: string[]
   defaultExpandGroups?: boolean
   defaultRefreshInterval?: 10 | 30 | 60 | 120 | 300 | 600
+  hideUrls?: boolean
   notice?: Notice
 }

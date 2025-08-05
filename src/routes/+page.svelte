@@ -119,6 +119,7 @@
       title={group.title}
       statuses={group.statuses}
       expandByDefault={config.defaultExpandGroups}
+      {config}
     />
   {/each}
   <RefreshSettings defaultRefreshInterval={config.defaultRefreshInterval} onRefresh={refresh} />
