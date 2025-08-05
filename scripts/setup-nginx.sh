@@ -3,14 +3,14 @@
 # Setup nginx configuration for fancy-gatus
 # This script runs at container startup to configure nginx
 
-NGINX_CONF="/nginx/etc/default.conf"
+NGINX_CONF="/etc/nginx/conf.d/default.conf"
 NGINX_CONF_DIR=$(dirname "$NGINX_CONF")
 
 # Ensure the nginx config directory exists
 mkdir -p "$NGINX_CONF_DIR"
 
-# Set the port (default to 3000 for 11notes/nginx)
-NGINX_PORT="${NGINX_PORT:-3000}"
+# Set the port (default to 80 for nginx:alpine)
+NGINX_PORT="${NGINX_PORT:-80}"
 
 echo "Setting up nginx configuration on port $NGINX_PORT..."
 
@@ -20,7 +20,7 @@ server {
     listen $NGINX_PORT;
     server_name localhost;
     
-    root /nginx/var;
+    root /usr/share/nginx/html;
     index index.html;
     
     # Handle SPA routing - serve index.html for all routes
@@ -83,8 +83,8 @@ cat >> "$NGINX_CONF" << EOF
     # Hide nginx version
     server_tokens off;
     
-    # Access logs (using the main format from 11notes/nginx)
-    access_log /dev/stdout main;
+    # Access logs
+    access_log /var/log/nginx/access.log;
     error_log /dev/stderr warn;
 }
 EOF

@@ -3,7 +3,7 @@
 # Generate config.json from environment variables
 # This script runs at container startup to create the frontend configuration
 
-CONFIG_FILE="/nginx/var/config.json"
+CONFIG_FILE="/usr/share/nginx/html/config.json"
 CONFIG_DIR=$(dirname "$CONFIG_FILE")
 
 # Ensure the directory exists

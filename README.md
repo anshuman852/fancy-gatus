@@ -24,7 +24,7 @@ Make sure that the Gatus API endpoint `/api/v1/endpoints/statuses` is available 
 
 ### Docker
 
-Fancy Gatus can also be deployed using Docker with the included Dockerfile that uses the secure and optimized [11notes/nginx](https://hub.docker.com/r/11notes/nginx) base image.
+Fancy Gatus can also be deployed using Docker with the included Dockerfile that uses the lightweight and reliable [nginx:alpine](https://hub.docker.com/_/nginx) base image.
 
 #### Quick Start
 
@@ -34,7 +34,7 @@ docker-compose up -d
 
 # Or build and run manually
 docker build -t fancy-gatus .
-docker run -d -p 3000:3000 \
+docker run -d -p 3000:80 \
   -e CONFIG_TITLE="My Status Page" \
   -e CONFIG_HIDE_URLS="true" \
   fancy-gatus
@@ -60,16 +60,16 @@ Configuration is handled through environment variables at runtime:
 | `CONFIG_NOTICE_CREATED_AT` | Notice creation date | _(none)_ |
 | `CONFIG_NOTICE_UPDATED_AT` | Notice update date | _(none)_ |
 | `GATUS_API_URL` | Proxy API requests to this URL | _(none)_ |
-| `NGINX_PORT` | Port for nginx to listen on | `3000` |
+| `NGINX_PORT` | Port for nginx to listen on | `80` |
 
 #### Security Features
 
 The Docker image includes several security features:
-- Runs as non-root user (uid/gid 1000)
+- Lightweight nginx:alpine base image
 - Read-only filesystem
-- Distroless base image
 - Automatic security scanning
 - Minimal attack surface
+- Efficient Alpine Linux base
 
 ## Configuration
 
