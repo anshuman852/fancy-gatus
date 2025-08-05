@@ -11,6 +11,7 @@ services:
       CONFIG_TITLE: "My Infrastructure Status"
       CONFIG_GATUS_BASE_URL: "https://status.example.com"
       CONFIG_HIDE_URLS: "false"
+      CONFIG_HIDE_FOOTER: "false"
       
       # Groups and statuses configuration
       CONFIG_HIDDEN_GROUPS: ""

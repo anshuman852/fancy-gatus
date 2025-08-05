@@ -15,5 +15,6 @@ export type Config = {
   defaultExpandGroups?: boolean
   defaultRefreshInterval?: 10 | 30 | 60 | 120 | 300 | 600
   hideUrls?: boolean
+  hideFooter?: boolean
   notice?: Notice
 }

@@ -49,6 +49,7 @@ Configuration is handled through environment variables at runtime:
 | `CONFIG_TITLE` | Page title | `Infrastructure Status` |
 | `CONFIG_GATUS_BASE_URL` | Base URL of Gatus API | _(none)_ |
 | `CONFIG_HIDE_URLS` | Hide service URLs | `false` |
+| `CONFIG_HIDE_FOOTER` | Hide the "Powered by Gatus and Fancy Gatus" footer | `false` |
 | `CONFIG_HIDDEN_GROUPS` | Comma-separated list of hidden groups | _(none)_ |
 | `CONFIG_HIDDEN_STATUSES` | Comma-separated list of hidden statuses | _(none)_ |
 | `CONFIG_GROUP_ORDER` | Comma-separated list for group ordering | _(none)_ |
@@ -80,6 +81,7 @@ The frontend tries to retrieve a configuration file named `config.json` from the
 | `title`                  | Title of the page. Both in the tab and next to the logo.                                                                                                                                                                                                                 | `Infrastructure Status` |
 | `gatusBaseUrl`           | Alternative base URL of the Gatus instance, if the API is not available relative to the frontend.                                                                                                                                                                        | `none`                  |
 | `hideUrls`               | Boolean specifying if service URLs/hostnames should be hidden from the status display for privacy or security reasons.                                                                                                                                                   | `false`                 |
+| `hideFooter`             | Boolean specifying if the "Powered by Gatus and Fancy Gatus" footer should be hidden from the page.                                                                                                                                                                     | `false`                 |
 | `hiddenGroups`           | Array containing names of groups that should be hidden. These groups are still visible in the API response!                                                                                                                                                              | `[]`                    |
 | `hiddenStatuses`         | Array containing names of statuses that should be hidden. These are still visible in the API response!                                                                                                                                                                   | `[]`                    |
 | `groupOrder`             | Array containing names of groups. The groups are sorted in the frontend according to the order in the array (different from alphabetical sorting by default). If groups are not included in the array, they will be added alphabetically sorted below the sorted groups. | `[]`                    |

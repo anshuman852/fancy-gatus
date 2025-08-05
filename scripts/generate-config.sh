@@ -48,6 +48,10 @@ fi
 HIDE_URLS=$(to_json_boolean "$CONFIG_HIDE_URLS")
 echo "  \"hideUrls\": $HIDE_URLS," >> "$CONFIG_FILE"
 
+# Add hideFooter boolean (default: false)
+HIDE_FOOTER=$(to_json_boolean "$CONFIG_HIDE_FOOTER")
+echo "  \"hideFooter\": $HIDE_FOOTER," >> "$CONFIG_FILE"
+
 # Add hiddenGroups array
 HIDDEN_GROUPS=$(to_json_array "$CONFIG_HIDDEN_GROUPS")
 echo "  \"hiddenGroups\": $HIDDEN_GROUPS," >> "$CONFIG_FILE"

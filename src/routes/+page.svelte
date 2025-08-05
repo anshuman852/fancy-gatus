@@ -151,7 +151,9 @@
   {/if}
   <ErrorDisplay {error} retry={retryConnection} />
   <RefreshSettings defaultRefreshInterval={config.defaultRefreshInterval} onRefresh={refresh} />
-  <Footer />
+  {#if !config.hideFooter}
+    <Footer />
+  {/if}
 {:else}
   <Header title={config.title} />
   {#if config.notice}
@@ -167,5 +169,7 @@
     />
   {/each}
   <RefreshSettings defaultRefreshInterval={config.defaultRefreshInterval} onRefresh={refresh} />
-  <Footer />
+  {#if !config.hideFooter}
+    <Footer />
+  {/if}
 {/if}
