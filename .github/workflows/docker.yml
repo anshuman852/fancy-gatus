@@ -10,7 +10,7 @@ env:
   REGISTRY_IMAGE: ${{ github.repository_owner }}/fancy-gatus
 
 permissions:
-  contents: read
+  contents: write
   packages: write
   attestations: write
   id-token: write
@@ -154,27 +154,76 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
         
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run build
+          
+      - name: Create output zip
+        run: cd build; zip -r ../fancy-gatus-${{ github.ref_name }}.zip *
+        
+      - name: Build changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v5
+        with:
+          configuration: '.github/changelog-configuration.json'
+          failOnError: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          name: Fancy Gatus ${{ github.ref_name }}
           body: |
-            ## Docker Images
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## 🐳 Docker Images
             
             Multi-platform Docker images are available at:
-            ```
-            docker pull ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:${{ github.ref_name }}
-            ```
-            
-            ## Quick Start
-            
             ```bash
-            docker run -d -p 3000:3000 \
+            docker pull ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:${{ github.ref_name }}
+            docker pull ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:latest
+            ```
+            
+            ## 🚀 Quick Start
+            
+            ### Docker Run
+            ```bash
+            docker run -d -p 3000:80 \
               -e CONFIG_TITLE="My Status Page" \
               -e CONFIG_HIDE_URLS="true" \
+              -e CONFIG_HIDE_FOOTER="true" \
               ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:${{ github.ref_name }}
             ```
             
-            ## Supported Platforms
+            ### Docker Compose
+            ```yaml
+            version: '3.8'
+            services:
+              fancy-gatus:
+                image: ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:${{ github.ref_name }}
+                ports:
+                  - "3000:80"
+                environment:
+                  CONFIG_TITLE: "My Infrastructure Status"
+                  CONFIG_GATUS_BASE_URL: "https://status.example.com"
+                  CONFIG_HIDE_URLS: "false"
+                  CONFIG_HIDE_FOOTER: "false"
+            ```
+            
+            ## 📦 Static Build
+            
+            Download the static build zip file from the assets below and serve with any web server.
+            
+            ## 🏗️ Supported Platforms
             - linux/amd64
             - linux/arm64
+          files: fancy-gatus-${{ github.ref_name }}.zip
+          fail_on_unmatched_files: true
