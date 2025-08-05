@@ -173,16 +173,27 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@v5
         with:
           configuration: '.github/changelog-configuration.json'
-          failOnError: true
+          failOnError: false
+          commitMode: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate commit-based changelog if no PRs found
+        id: commit_changelog
+        if: steps.changelog.outputs.changelog == '' || contains(steps.changelog.outputs.changelog, 'No pull requests found')
+        run: |
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "## 📋 Changes" >> $GITHUB_OUTPUT
+          git log --pretty=format:"* %s (%h)" ${{ github.event.before }}..${{ github.sha }} >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: Fancy Gatus ${{ github.ref_name }}
           body: |
-            ${{ steps.changelog.outputs.changelog }}
+            ${{ steps.commit_changelog.outputs.changelog || steps.changelog.outputs.changelog }}
             
             ## 🐳 Docker Images
             
