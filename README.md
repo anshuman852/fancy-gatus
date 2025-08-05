@@ -15,10 +15,61 @@ You can see it in action [here](https://status.bluemedia.dev) or check out the s
 
 ## Deployment
 
-Fancy Gatus is intended to be delivered directly from a web server (e.g. Nginx). The installation is therefore simple.  
+### Static Files
+
+Fancy Gatus is intended to be delivered directly from a web server (e.g. Nginx). The installation is therefore simple.
 Just download the latest ZIP file from the release page and unpack it into the web root of your server. If you want to make further adjustments to the frontend, you can also create the configuration file in the web root. Refer to the [Configuration](#configuration) section for more information.
 
 Make sure that the Gatus API endpoint `/api/v1/endpoints/statuses` is available relative to the frontend if you have not configured a different base URL. An example configuration for Nginx that makes this possible can be found [here](docs/example-nginx.conf).
+
+### Docker
+
+Fancy Gatus can also be deployed using Docker with the included Dockerfile that uses the secure and optimized [11notes/nginx](https://hub.docker.com/r/11notes/nginx) base image.
+
+#### Quick Start
+
+```bash
+# Using docker-compose
+docker-compose up -d
+
+# Or build and run manually
+docker build -t fancy-gatus .
+docker run -d -p 3000:3000 \
+  -e CONFIG_TITLE="My Status Page" \
+  -e CONFIG_HIDE_URLS="true" \
+  fancy-gatus
+```
+
+#### Environment Variables
+
+Configuration is handled through environment variables at runtime:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CONFIG_TITLE` | Page title | `Infrastructure Status` |
+| `CONFIG_GATUS_BASE_URL` | Base URL of Gatus API | _(none)_ |
+| `CONFIG_HIDE_URLS` | Hide service URLs | `false` |
+| `CONFIG_HIDDEN_GROUPS` | Comma-separated list of hidden groups | _(none)_ |
+| `CONFIG_HIDDEN_STATUSES` | Comma-separated list of hidden statuses | _(none)_ |
+| `CONFIG_GROUP_ORDER` | Comma-separated list for group ordering | _(none)_ |
+| `CONFIG_DEFAULT_EXPAND_GROUPS` | Expand groups by default | `false` |
+| `CONFIG_DEFAULT_REFRESH_INTERVAL` | Refresh interval in seconds | `60` |
+| `CONFIG_NOTICE_TYPE` | Notice type (`success`, `warning`, `error`) | _(none)_ |
+| `CONFIG_NOTICE_TITLE` | Notice title | _(none)_ |
+| `CONFIG_NOTICE_CONTENT` | Notice content | _(none)_ |
+| `CONFIG_NOTICE_CREATED_AT` | Notice creation date | _(none)_ |
+| `CONFIG_NOTICE_UPDATED_AT` | Notice update date | _(none)_ |
+| `GATUS_API_URL` | Proxy API requests to this URL | _(none)_ |
+| `NGINX_PORT` | Port for nginx to listen on | `3000` |
+
+#### Security Features
+
+The Docker image includes several security features:
+- Runs as non-root user (uid/gid 1000)
+- Read-only filesystem
+- Distroless base image
+- Automatic security scanning
+- Minimal attack surface
 
 ## Configuration
 
