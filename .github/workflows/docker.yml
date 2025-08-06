@@ -138,8 +138,30 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          # Debug: List all downloaded files
+          echo "Downloaded digest files:"
+          find . -type f -name "*" | sort
+          
+          # Create manifest list with proper platform annotations
+          TAGS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          
+          # Build sources from all digest files
+          SOURCES=""
+          for digest_file in *; do
+            if [ -f "$digest_file" ]; then
+              digest="sha256:${digest_file}"
+              SOURCES="${SOURCES} ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}@${digest}"
+            fi
+          done
+          
+          # Create manifest list
+          echo "Creating manifest with sources: ${SOURCES}"
+          if [ -n "$SOURCES" ]; then
+            docker buildx imagetools create ${TAGS} ${SOURCES}
+          else
+            echo "ERROR: No digest sources found"
+            exit 1
+          fi
             
       - name: Inspect Image
         run: |
