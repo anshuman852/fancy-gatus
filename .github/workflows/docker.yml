@@ -138,8 +138,31 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          # Create manifest list with proper platform annotations
+          TAGS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          
+          # Build sources from downloaded artifacts
+          SOURCES=""
+          
+          # Check for amd64 digest
+          if ls digests-linux-amd64/* 1> /dev/null 2>&1; then
+            for digest_file in digests-linux-amd64/*; do
+              digest="sha256:$(basename ${digest_file})"
+              SOURCES="${SOURCES} ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}@${digest}"
+            done
+          fi
+          
+          # Check for arm64 digest
+          if ls digests-linux-arm64/* 1> /dev/null 2>&1; then
+            for digest_file in digests-linux-arm64/*; do
+              digest="sha256:$(basename ${digest_file})"
+              SOURCES="${SOURCES} ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}@${digest}"
+            done
+          fi
+          
+          # Create manifest list
+          echo "Creating manifest with sources: ${SOURCES}"
+          docker buildx imagetools create ${TAGS} ${SOURCES}
             
       - name: Inspect Image
         run: |
